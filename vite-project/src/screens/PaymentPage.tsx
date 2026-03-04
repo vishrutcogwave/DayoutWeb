@@ -1,7 +1,7 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { ArrowLeft } from "lucide-react";
-
+import { createPhonePePayment } from "../services/gateway.service";
 function PaymentPage() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -70,22 +70,43 @@ function PaymentPage() {
     setShowTerms(true);
   };
 
-  const handleFinalConfirm = () => {
-    if (!acceptedTerms) {
-      alert("Please accept the Terms & Conditions to proceed.");
-      return;
+ const handleFinalConfirm = async () => {
+  if (!acceptedTerms) {
+    alert("Please accept the Terms & Conditions to proceed.");
+    return;
+  }
+
+  try {
+    // Amount to pay (grand total)
+    const amount = grandTotal;
+
+    // Success redirect URL (after payment)
+    const successUrl = `${window.location.origin}/`;
+
+    // Call PhonePe API
+    const paymentResponse = await createPhonePePayment(
+      amount,
+      successUrl
+    );
+
+    if (!paymentResponse.redirectUrl) {
+      throw new Error("No redirect URL received");
     }
 
-    console.log("Booking Confirmed:", {
-      ...form,
-      ...bookingData,
-      grandTotal,
-    });
+    // Store merchant order id if needed later
+    sessionStorage.setItem(
+      "merchantOrderId",
+      paymentResponse.merchantOrderId
+    );
 
-    alert("Booking Confirmed Successfully 🎉");
-    navigate("/");
-  };
+    // Redirect to PhonePe payment page
+    window.location.href = paymentResponse.redirectUrl;
 
+  } catch (error) {
+    console.error("Payment failed:", error);
+    alert("Failed to initiate payment. Please try again.");
+  }
+};
   return (
     <div className="bg-[#f7f3ee] min-h-screen py-10 px-4">
       <div className="max-w-6xl mx-auto">
