@@ -35,20 +35,16 @@ const PackageCard: React.FC<PackageCardProps> = ({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.45, ease: "easeOut" }}
       whileHover={{ y: -4 }}
-      className="
-        bg-white border border-[#e7c9a5] shadow-sm
-        max-w-6xl mx-auto
-        flex flex-col lg:flex-row
-      "
+      className="bg-white border border-[#e7c9a5] shadow-sm max-w-6xl mx-auto flex flex-col lg:flex-row rounded-lg overflow-hidden"
     >
       {/* IMAGE */}
       <div
         className="
-          relative overflow-hidden flex-shrink-0
-          w-full h-[220px]
-          sm:h-[260px]
-          lg:w-[380px] lg:h-[260px]
-          xl:w-[420px] xl:h-[280px]
+        relative overflow-hidden flex-shrink-0
+        w-full h-[220px]
+        sm:h-[260px]
+        lg:w-[380px] lg:h-[260px]
+        xl:w-[420px] xl:h-[280px]
         "
       >
         <motion.img
@@ -72,9 +68,10 @@ const PackageCard: React.FC<PackageCardProps> = ({
             <h2 className="text-lg sm:text-xl font-semibold text-gray-800">
               {title}
             </h2>
+
             <p className="text-sm italic text-gray-500 mt-1">{timeRange}</p>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-2 mt-4 text-sm">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2 mt-4 text-sm">
               {[...featuresLeft, ...featuresRight].map((item, i) => (
                 <div key={i} className="flex gap-2">
                   <span className="text-orange-500">✓</span>
@@ -97,17 +94,13 @@ const PackageCard: React.FC<PackageCardProps> = ({
         <div className="border-t border-dashed my-5" />
 
         {/* BOTTOM */}
-        <div
-          className="
-            flex flex-col sm:flex-row
-            gap-4 sm:items-center sm:justify-between
-          "
-        >
+        <div className="flex flex-wrap lg:flex-nowrap items-end gap-4 sm:gap-6">
           {/* DATE + COUNTERS */}
-          <div className="flex flex-col sm:flex-row sm:items-end gap-6">
-            {/* Arriving Date */}
+          <div className="flex flex-wrap lg:flex-nowrap items-end gap-4 sm:gap-6">
+            {/* ARRIVING DATE */}
             <div>
               <p className="text-xs text-gray-400 mb-1">ARRIVING DATE</p>
+
               <input
                 type="date"
                 value={arrivingDate}
@@ -115,68 +108,83 @@ const PackageCard: React.FC<PackageCardProps> = ({
                 onChange={(e) => onDateChange(e.target.value)}
                 className="border rounded px-3 py-1 text-sm"
               />
+
               <div className="text-xs text-red-600 min-h-[16px]"></div>
             </div>
 
-            {/* Adults */}
+            {/* ADULTS */}
             <div>
               <p className="text-xs text-gray-400 mb-1">ADULTS</p>
-              <div className="flex items-center border rounded">
+
+              <div className="flex items-center justify-between border rounded w-[95px] sm:w-[110px]">
                 <button
                   onClick={() => onAdultsChange(adults - 1)}
                   disabled={adults <= 1}
-                  className="px-3 py-1 hover:bg-gray-100 active:scale-90"
+                  className="px-2 sm:px-3 py-1 hover:bg-gray-100 active:scale-90"
                 >
                   −
                 </button>
-                <span className="px-4">{adults}</span>
+
+                <span className="text-center flex-1">{adults}</span>
+
                 <button
                   onClick={() => onAdultsChange(adults + 1)}
-                  className="px-3 py-1 hover:bg-gray-100 active:scale-90"
+                  className="px-2 sm:px-3 py-1 hover:bg-gray-100 active:scale-90"
                 >
                   +
                 </button>
               </div>
+
               <div className="text-xs text-red-600">Adults (10+ yrs)</div>
             </div>
 
-            {/* Children */}
+            {/* CHILDREN */}
             <div>
               <p className="text-xs text-gray-400 mb-1">CHILDREN</p>
-              <div className="flex items-center border rounded">
+
+              <div className="flex items-center justify-between border rounded w-[95px] sm:w-[110px]">
                 <button
                   onClick={() => onChildrenChange(children - 1)}
                   disabled={children <= 0}
-                  className="px-3 py-1 hover:bg-gray-100 active:scale-90"
+                  className="px-2 sm:px-3 py-1 hover:bg-gray-100 active:scale-90"
                 >
                   −
                 </button>
-                <span className="px-4">{children}</span>
+
+                <span className="text-center flex-1">{children}</span>
+
                 <button
                   onClick={() => onChildrenChange(children + 1)}
-                  className="px-3 py-1 hover:bg-gray-100 active:scale-90"
+                  className="px-2 sm:px-3 py-1 hover:bg-gray-100 active:scale-90"
                 >
                   +
                 </button>
               </div>
+
               <div className="text-xs text-red-600">Children (5–10 yrs)</div>
             </div>
           </div>
 
-          {/* CTA */}
+          {/* BOOK BUTTON */}
+          <div>
           <motion.button
             whileHover={{ scale: 1.04 }}
             whileTap={{ scale: 0.95 }}
             onClick={onBook}
             className="
               bg-green-900 text-white
-              w-full sm:w-auto
+              w-full lg:w-auto
               px-8 sm:px-12 py-3
               text-sm font-semibold tracking-wide
+              whitespace-nowrap
             "
           >
             BOOK PACKAGE NOW
           </motion.button>
+              <div className="text-xs text-red-600 min-h-[10px]"></div>
+
+          </div>
+          
         </div>
       </div>
     </motion.div>
