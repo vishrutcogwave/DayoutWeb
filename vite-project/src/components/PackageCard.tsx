@@ -105,18 +105,17 @@ const PackageCard: React.FC<PackageCardProps> = ({
         >
           {/* DATE + COUNTERS */}
           <div className="flex flex-col sm:flex-row sm:items-end gap-6">
-
             {/* Arriving Date */}
             <div>
               <p className="text-xs text-gray-400 mb-1">ARRIVING DATE</p>
               <input
                 type="date"
                 value={arrivingDate}
-                min={arrivingDate}
+                min={new Date().toISOString().split("T")[0]}
                 onChange={(e) => onDateChange(e.target.value)}
                 className="border rounded px-3 py-1 text-sm"
               />
-            <div className="text-xs text-red-600 min-h-[16px]"></div>
+              <div className="text-xs text-red-600 min-h-[16px]"></div>
             </div>
 
             {/* Adults */}
@@ -162,7 +161,6 @@ const PackageCard: React.FC<PackageCardProps> = ({
               </div>
               <div className="text-xs text-red-600">Children (5–10 yrs)</div>
             </div>
-
           </div>
 
           {/* CTA */}

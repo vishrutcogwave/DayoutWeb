@@ -5,6 +5,12 @@ interface PhonePePaymentResponse {
   merchantOrderId: string;
 }
 
+interface PaymentStatusResponse {
+  orderId: string;
+  state: string;
+  amount: number;
+}
+
 export const createPhonePePayment = async (
   amount: number,
   redirectUrl: string
@@ -30,3 +36,25 @@ export const createPhonePePayment = async (
   }
 };
 
+export const checkPaymentStatus = async (
+  merchantOrderId: string
+): Promise<PaymentStatusResponse> => {
+  try {
+    const response = await api.get<PaymentStatusResponse>(
+      "/api/bookingengine/PGPaymentStatus",
+      {
+        params: {
+          MerchantorderID: merchantOrderId,
+        },
+      }
+    );
+
+    return response.data;
+  } catch (error: any) {
+    console.error(
+      "❌ Payment status check failed:",
+      error.response?.data || error.message
+    );
+    throw error;
+  }
+};

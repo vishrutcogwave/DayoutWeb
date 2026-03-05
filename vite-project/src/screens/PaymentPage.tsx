@@ -2,6 +2,9 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { ArrowLeft } from "lucide-react";
 import { createPhonePePayment } from "../services/gateway.service";
+import { formatDate, formatFromInputDate } from "../types";
+
+
 function PaymentPage() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -17,10 +20,15 @@ function PaymentPage() {
   const [errors, setErrors] = useState<Partial<typeof form>>({});
   const [showTerms, setShowTerms] = useState(false);
   const [acceptedTerms, setAcceptedTerms] = useState(false);
+  const [couponCode, setCouponCode] = useState("");
+  const [discount, setDiscount] = useState(0);
+  const [couponError, setCouponError] = useState("");
+  const [couponApplied, setCouponApplied] = useState(false);
 
   const subtotal = bookingData?.total || 0;
-  const tax = subtotal * 0.05;
-  const grandTotal = subtotal + tax;
+  const discountedSubtotal = subtotal - discount;
+  const tax = discountedSubtotal * 0.05;
+  const grandTotal = discountedSubtotal + tax;
 
   const handleChange = (field: keyof typeof form, value: string) => {
     setForm((prev) => ({
@@ -35,8 +43,7 @@ function PaymentPage() {
       if (field === "lastName" && value.trim()) delete updated.lastName;
       if (field === "email" && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value))
         delete updated.email;
-      if (field === "phone" && /^[0-9]{10}$/.test(value))
-        delete updated.phone;
+      if (field === "phone" && /^[0-9]{10}$/.test(value)) delete updated.phone;
 
       return updated;
     });
@@ -45,19 +52,15 @@ function PaymentPage() {
   const validate = () => {
     const newErrors: Partial<typeof form> = {};
 
-    if (!form.firstName.trim())
-      newErrors.firstName = "First name is required";
+    if (!form.firstName.trim()) newErrors.firstName = "First name is required";
 
-    if (!form.lastName.trim())
-      newErrors.lastName = "Last name is required";
+    if (!form.lastName.trim()) newErrors.lastName = "Last name is required";
 
-    if (!form.email.trim())
-      newErrors.email = "Email is required";
+    if (!form.email.trim()) newErrors.email = "Email is required";
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email))
       newErrors.email = "Invalid email format";
 
-    if (!form.phone.trim())
-      newErrors.phone = "Phone number is required";
+    if (!form.phone.trim()) newErrors.phone = "Phone number is required";
     else if (!/^[0-9]{10}$/.test(form.phone))
       newErrors.phone = "Phone must be 10 digits";
 
@@ -69,57 +72,64 @@ function PaymentPage() {
     if (!validate()) return;
     setShowTerms(true);
   };
+  const applyCoupon = async () => {
+    setDiscount(500);
+    setCouponApplied(true);
+  };
 
-const handleFinalConfirm = async () => {
-  if (!acceptedTerms) {
-    alert("Please accept the Terms & Conditions to proceed.");
-    return;
-  }
-
-  try {
-    const amount = grandTotal;
-    const successUrl = `${window.location.origin}/success`;
-
-    const paymentResponse = await createPhonePePayment(amount, successUrl);
-
-    if (!paymentResponse.redirectUrl) {
-      throw new Error("No redirect URL received");
+  const handleFinalConfirm = async () => {
+    if (!acceptedTerms) {
+      alert("Please accept the Terms & Conditions to proceed.");
+      return;
     }
 
-    sessionStorage.setItem("merchantOrderId", paymentResponse.merchantOrderId);
+    try {
+      const amount = +grandTotal.toFixed(0);
+      const successUrl = `${window.location.origin}/success`;
 
-    sessionStorage.setItem(
-      "bookingPayload",
-      JSON.stringify({
-        customerDetails: {
-          firstName: form.firstName,
-          lastName: form.lastName,
-          email: form.email,
-          phone: form.phone,
-        },
-        bookingSummary: {
-          packageTitle: bookingData?.packageTitle,
-          adults: bookingData?.adults,
-          bookingDate:  new Date().toISOString().split("T")[0],
-          arrivingDate:bookingData?.arrivingDate,
-          children: bookingData?.children,
-          subtotal: subtotal,
-          tax: tax,
-          grandTotal: grandTotal,
-        },
-      })
-    );
+      const paymentResponse = await createPhonePePayment(amount, successUrl);
 
-    window.location.href = paymentResponse.redirectUrl;
-  } catch (error) {
-    console.error("Payment failed:", error);
-    alert("Failed to initiate payment. Please try again.");
-  }
-};
+      if (!paymentResponse.redirectUrl) {
+        throw new Error("No redirect URL received");
+      }
+
+      sessionStorage.setItem(
+        "merchantOrderId",
+        paymentResponse.merchantOrderId,
+      );
+
+      sessionStorage.setItem(
+        "bookingPayload",
+        JSON.stringify({
+          customerDetails: {
+            firstName: form.firstName,
+            lastName: form.lastName,
+            email: form.email,
+            phone: form.phone,
+          },
+          bookingSummary: {
+            packageId: bookingData.packageId,
+            packageTitle: bookingData?.packageTitle,
+            adults: bookingData?.adults,
+            bookingDate: formatDate(new Date()),
+           arrivingDate: formatFromInputDate(bookingData?.arrivingDate),
+            children: bookingData?.children,
+            subtotal: subtotal,
+            tax: tax,
+            grandTotal: grandTotal,
+          },
+        }),
+      );
+
+      window.location.href = paymentResponse.redirectUrl;
+    } catch (error) {
+      console.error("Payment failed:", error);
+      alert("Failed to initiate payment. Please try again.");
+    }
+  };
   return (
     <div className="bg-[#f7f3ee] min-h-screen py-10 px-4">
       <div className="max-w-6xl mx-auto">
-
         <button
           onClick={() => navigate(-1)}
           className="flex items-center gap-2 text-sm text-gray-600 mb-6"
@@ -128,13 +138,10 @@ const handleFinalConfirm = async () => {
         </button>
 
         <div className="grid lg:grid-cols-3 gap-8">
-
           {/* Guest Details */}
           <div className="lg:col-span-2">
             <div className="bg-white border rounded shadow-sm p-6">
-              <h2 className="text-lg font-semibold mb-5">
-                Guest Details
-              </h2>
+              <h2 className="text-lg font-semibold mb-5">Guest Details</h2>
 
               <div className="grid sm:grid-cols-2 gap-4">
                 <div>
@@ -142,9 +149,7 @@ const handleFinalConfirm = async () => {
                     placeholder="First Name"
                     className="border p-3 rounded text-sm w-full"
                     value={form.firstName}
-                    onChange={(e) =>
-                      handleChange("firstName", e.target.value)
-                    }
+                    onChange={(e) => handleChange("firstName", e.target.value)}
                   />
                   {errors.firstName && (
                     <p className="text-red-500 text-xs mt-1">
@@ -158,9 +163,7 @@ const handleFinalConfirm = async () => {
                     placeholder="Last Name"
                     className="border p-3 rounded text-sm w-full"
                     value={form.lastName}
-                    onChange={(e) =>
-                      handleChange("lastName", e.target.value)
-                    }
+                    onChange={(e) => handleChange("lastName", e.target.value)}
                   />
                   {errors.lastName && (
                     <p className="text-red-500 text-xs mt-1">
@@ -175,14 +178,10 @@ const handleFinalConfirm = async () => {
                   placeholder="Email Address"
                   className="border p-3 rounded text-sm w-full"
                   value={form.email}
-                  onChange={(e) =>
-                    handleChange("email", e.target.value)
-                  }
+                  onChange={(e) => handleChange("email", e.target.value)}
                 />
                 {errors.email && (
-                  <p className="text-red-500 text-xs mt-1">
-                    {errors.email}
-                  </p>
+                  <p className="text-red-500 text-xs mt-1">{errors.email}</p>
                 )}
               </div>
 
@@ -191,14 +190,10 @@ const handleFinalConfirm = async () => {
                   placeholder="Phone Number"
                   className="border p-3 rounded text-sm w-full"
                   value={form.phone}
-                  onChange={(e) =>
-                    handleChange("phone", e.target.value)
-                  }
+                  onChange={(e) => handleChange("phone", e.target.value)}
                 />
                 {errors.phone && (
-                  <p className="text-red-500 text-xs mt-1">
-                    {errors.phone}
-                  </p>
+                  <p className="text-red-500 text-xs mt-1">{errors.phone}</p>
                 )}
               </div>
             </div>
@@ -206,9 +201,7 @@ const handleFinalConfirm = async () => {
 
           {/* Booking Summary */}
           <div className="bg-white border rounded shadow-sm p-6 h-fit">
-            <h3 className="text-lg font-semibold mb-4">
-              Booking Summary
-            </h3>
+            <h3 className="text-lg font-semibold mb-4">Booking Summary</h3>
 
             <div className="text-sm space-y-3 border-b pb-4">
               <div className="flex justify-between">
@@ -225,11 +218,46 @@ const handleFinalConfirm = async () => {
                 <span>Children</span>
                 <span>{bookingData?.children}</span>
               </div>
+              {/* Coupon */}
+              <div style={{ display: "none" }} className="mt-3">
+                <div className="flex gap-2">
+                  <input
+                    placeholder="Coupon Code"
+                    value={couponCode}
+                    onChange={(e) => setCouponCode(e.target.value)}
+                    className="border p-2 rounded text-sm w-full"
+                  />
+
+                  <button
+                    onClick={applyCoupon}
+                    className="bg-gray-800 text-white px-4 text-sm rounded"
+                  >
+                    Apply
+                  </button>
+                </div>
+
+                {couponError && (
+                  <p className="text-red-500 text-xs mt-1">{couponError}</p>
+                )}
+
+                {couponApplied && (
+                  <p className="text-green-600 text-xs mt-1">
+                    Coupon applied! Discount ₹{discount}
+                  </p>
+                )}
+              </div>
 
               <div className="flex justify-between">
                 <span>Subtotal</span>
                 <span>₹{subtotal}</span>
               </div>
+
+              {discount > 0 && (
+                <div className="flex justify-between text-green-600">
+                  <span>Discount</span>
+                  <span>- ₹{discount}</span>
+                </div>
+              )}
 
               <div className="flex justify-between">
                 <span>Tax (5%)</span>
@@ -255,24 +283,29 @@ const handleFinalConfirm = async () => {
         {showTerms && (
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4">
             <div className="bg-white max-w-xl w-full rounded shadow-lg p-6">
-
               <div className="text-xs text-gray-700 space-y-2 max-h-72 overflow-y-auto leading-relaxed">
-
                 <h4 className="text-center font-semibold underline mb-2">
                   Terms & Conditions
                 </h4>
 
-                <p>1. Photo ID Required – Valid photo ID mandatory at check-in.</p>
+                <p>
+                  1. Photo ID Required – Valid photo ID mandatory at check-in.
+                </p>
                 <p>2. PAN Not Accepted – PAN cards are not valid ID.</p>
                 <p>3. Pets – Pets are not permitted.</p>
-                <p>4. Inappropriate Behaviour – Resort reserves right to take action.</p>
+                <p>
+                  4. Inappropriate Behaviour – Resort reserves right to take
+                  action.
+                </p>
                 <p>5. Rooms allotted from 12:00 PM. NO SMOKING INSIDE ROOMS.</p>
                 <p>6. Guaranteed number will be charged.</p>
                 <p>7. Dress code & swimwear mandatory for pool use.</p>
                 <p>8. No pool/activity if under alcohol influence.</p>
                 <p>9. Taxes applicable as per reservation time.</p>
                 <p>10. General hospitality policies apply.</p>
-                <p className="font-semibold underline">11. Cancellation & Postponement</p>
+                <p className="font-semibold underline">
+                  11. Cancellation & Postponement
+                </p>
                 <p>a. No cancellation/postponement once confirmed.</p>
                 <p>b. 50% advance mandatory.</p>
                 <p>c. Remaining 50% on arrival.</p>
@@ -308,11 +341,9 @@ const handleFinalConfirm = async () => {
                   Accept & Confirm
                 </button>
               </div>
-
             </div>
           </div>
         )}
-
       </div>
     </div>
   );
