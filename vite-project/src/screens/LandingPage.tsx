@@ -19,19 +19,17 @@ const paidActivities = [
 
 function LandingPage() {
   const [counts, setCounts] = useState<Record<number, CountState>>({});
+const [arrivingDate, setArrivingDate] = useState(
+  new Date().toISOString().split("T")[0]
+);
   const navigate = useNavigate();
   useEffect(() => {
- 
- console.log("counts",counts);
- 
-
-  }, [counts])
-  
+    console.log("counts", counts);
+  }, [counts]);
 
   return (
     <div className="bg-[#faf7f2] min-h-screen py-12 sm:py-16 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
-        
         {/* Heading */}
         <div className="text-center mb-10 sm:mb-14">
           <h1 className="text-2xl sm:text-3xl lg:text-4xl font-serif text-gray-900">
@@ -74,6 +72,8 @@ function LandingPage() {
                 <PackageCard
                   {...pkg}
                   adults={current.adults}
+                  arrivingDate={arrivingDate}
+                  onDateChange={setArrivingDate}
                   children={current.children}
                   onAdultsChange={(value) =>
                     setCounts((prev) => ({
@@ -95,9 +95,9 @@ function LandingPage() {
                   }
                   onBook={() => {
                     // 🔹 Price Calculation (Adult + Children same price)
-                 const adultTotal = pkg.price * current.adults;
-const childTotal = (pkg.price * 0.5) * current.children;
-const total = adultTotal + childTotal;
+                    const adultTotal = pkg.price * current.adults;
+                    const childTotal = pkg.price * 0.5 * current.children;
+                    const total = adultTotal + childTotal;
 
                     navigate("/payment", {
                       state: {
@@ -105,7 +105,7 @@ const total = adultTotal + childTotal;
                         packageTitle: pkg.title,
                         adults: current.adults,
                         children: current.children,
-                        pricePerPerson: pkg.price,
+                        arrivingDate,
                         total,
                       },
                     });
@@ -144,19 +144,13 @@ const total = adultTotal + childTotal;
                 className="flex items-center justify-between py-3 border-b last:border-b-0"
               >
                 <div>
-                  <p className="font-medium text-gray-800">
-                    {activity.name}
-                  </p>
+                  <p className="font-medium text-gray-800">{activity.name}</p>
                   {activity.note && (
-                    <p className="text-xs text-gray-400">
-                      {activity.note}
-                    </p>
+                    <p className="text-xs text-gray-400">{activity.note}</p>
                   )}
                 </div>
 
-                <p className="font-semibold text-gray-800">
-                  ₹{activity.price}
-                </p>
+                <p className="font-semibold text-gray-800">₹{activity.price}</p>
               </motion.div>
             ))}
           </div>
@@ -164,13 +158,12 @@ const total = adultTotal + childTotal;
           <div className="mt-6 pt-4 border-t text-xs text-gray-500 flex gap-2">
             <span>ℹ️</span>
             <p>
-              Paid activities are not included in the base package price.
-              Prices mentioned are per person / per attempt.
-              Please check with the adventure coordinator.
+              Paid activities are not included in the base package price. Prices
+              mentioned are per person / per attempt. Please check with the
+              adventure coordinator.
             </p>
           </div>
         </motion.div>
-
       </div>
     </div>
   );

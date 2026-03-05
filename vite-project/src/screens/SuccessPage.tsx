@@ -1,0 +1,104 @@
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { CheckCircle } from "lucide-react";
+
+interface BookingConfirmationResponse {
+  bookingId: string;
+  packageTitle: string;
+  adults: number;
+  children: number;
+  totalAmount: number;
+  guestName: string;
+  message: string;
+}
+
+function SuccessPage() {
+  const [loading, setLoading] = useState(true);
+  const [confirmation, setConfirmation] = useState<BookingConfirmationResponse | null>(null);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const payloadStr = sessionStorage.getItem("bookingPayload");
+    if (!payloadStr) {
+      setLoading(false);
+      return;
+    }
+
+    const payload = JSON.parse(payloadStr);
+    console.log("payload",payload);
+    
+
+    setTimeout(() => {
+      setConfirmation({
+        bookingId: "BK123456",
+        packageTitle: payload.bookingSummary.packageTitle,
+        adults: payload.bookingSummary.adults,
+        children: payload.bookingSummary.children,
+        totalAmount: payload.bookingSummary.grandTotal,
+        guestName: `${payload.customerDetails.firstName} ${payload.customerDetails.lastName}`,
+        message: "Booking confirmed successfully! Enjoy your stay at Mayan Resort.",
+      });
+      setLoading(false);
+    }, 1500);
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-screen bg-gray-50 px-4">
+        <div className="text-center p-8 bg-white rounded-lg shadow-lg w-full max-w-md animate-pulse">
+          <p className="text-gray-500 text-lg font-medium">Confirming your booking...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!confirmation) {
+    return (
+      <p className="text-center mt-20 text-red-600 font-serif text-lg px-4">
+        No booking data found. Please try again.
+      </p>
+    );
+  }
+
+  return (
+    <div className="flex justify-center px-4">
+      <div className="max-w-4xl w-full mt-20 p-8 bg-white rounded-lg shadow-xl border border-gray-200">
+        <div className="flex justify-center mb-6">
+          <CheckCircle className="w-16 h-16 text-green-500 animate-bounce" />
+        </div>
+
+        <h2 className="text-3xl font-serif font-bold mb-8 text-center text-gray-900 px-6 py-2 bg-green-100 rounded-lg">
+          Booking Confirmed
+        </h2>
+
+        <section className="mb-8 space-y-3 text-gray-800">
+          <p className="text-lg font-semibold">
+            Booking ID: <span className="text-green-600">{confirmation.bookingId}</span>
+          </p>
+          <p className="text-lg">Guest Name: {confirmation.guestName}</p>
+          <p className="text-lg">Package: {confirmation.packageTitle}</p>
+          <p className="text-lg">Adults: {confirmation.adults}</p>
+          <p className="text-lg">Children: {confirmation.children}</p>
+          <p className="text-2xl font-bold text-green-700 mt-6">
+            Total Paid: ₹{confirmation.totalAmount.toFixed(0)}
+          </p>
+        </section>
+
+        <section className="mt-12 text-center text-gray-600 font-serif text-lg italic mb-6">
+          {confirmation.message}
+        </section>
+
+        <div className="flex justify-center">
+          <button
+            onClick={() => navigate("/")}
+            className="bg-green-500 hover:bg-green-600 text-white font-semibold px-8 py-3 rounded-lg shadow-lg transition-all duration-300 transform hover:scale-105"
+          >
+            OK
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default SuccessPage;

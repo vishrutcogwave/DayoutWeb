@@ -70,38 +70,47 @@ function PaymentPage() {
     setShowTerms(true);
   };
 
- const handleFinalConfirm = async () => {
+const handleFinalConfirm = async () => {
   if (!acceptedTerms) {
     alert("Please accept the Terms & Conditions to proceed.");
     return;
   }
 
   try {
-    // Amount to pay (grand total)
     const amount = grandTotal;
+    const successUrl = `${window.location.origin}/success`;
 
-    // Success redirect URL (after payment)
-    const successUrl = `${window.location.origin}/`;
-
-    // Call PhonePe API
-    const paymentResponse = await createPhonePePayment(
-      amount,
-      successUrl
-    );
+    const paymentResponse = await createPhonePePayment(amount, successUrl);
 
     if (!paymentResponse.redirectUrl) {
       throw new Error("No redirect URL received");
     }
 
-    // Store merchant order id if needed later
+    sessionStorage.setItem("merchantOrderId", paymentResponse.merchantOrderId);
+
     sessionStorage.setItem(
-      "merchantOrderId",
-      paymentResponse.merchantOrderId
+      "bookingPayload",
+      JSON.stringify({
+        customerDetails: {
+          firstName: form.firstName,
+          lastName: form.lastName,
+          email: form.email,
+          phone: form.phone,
+        },
+        bookingSummary: {
+          packageTitle: bookingData?.packageTitle,
+          adults: bookingData?.adults,
+          bookingDate:  new Date().toISOString().split("T")[0],
+          arrivingDate:bookingData?.arrivingDate,
+          children: bookingData?.children,
+          subtotal: subtotal,
+          tax: tax,
+          grandTotal: grandTotal,
+        },
+      })
     );
 
-    // Redirect to PhonePe payment page
     window.location.href = paymentResponse.redirectUrl;
-
   } catch (error) {
     console.error("Payment failed:", error);
     alert("Failed to initiate payment. Please try again.");
