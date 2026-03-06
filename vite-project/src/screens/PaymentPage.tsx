@@ -73,6 +73,9 @@ function PaymentPage() {
     setShowTerms(true);
   };
   const applyCoupon = async () => {
+
+    if (!validate()) return
+    
     setDiscount(500);
     setCouponApplied(true);
   };
@@ -117,6 +120,8 @@ function PaymentPage() {
             subtotal: subtotal,
             tax: tax,
             grandTotal: grandTotal,
+            discount:discount,
+            couponCode:couponCode
           },
         }),
       );
@@ -127,6 +132,12 @@ function PaymentPage() {
       alert("Failed to initiate payment. Please try again.");
     }
   };
+  const removeCoupon = () => {
+  setCouponCode("");
+  setDiscount(0);
+  setCouponApplied(false);
+  setCouponError("");
+};
   return (
     <div className="bg-[#f7f3ee] min-h-screen py-10 px-4">
       <div className="max-w-6xl mx-auto">
@@ -219,33 +230,45 @@ function PaymentPage() {
                 <span>{bookingData?.children}</span>
               </div>
               {/* Coupon */}
-              <div style={{ display: "none" }} className="mt-3">
-                <div className="flex gap-2">
-                  <input
-                    placeholder="Coupon Code"
-                    value={couponCode}
-                    onChange={(e) => setCouponCode(e.target.value)}
-                    className="border p-2 rounded text-sm w-full"
-                  />
+         {/* Coupon */}
+<div className="mt-3">
+  {!couponApplied ? (
+    <>
+      <div className="flex gap-2">
+        <input
+          placeholder="Coupon Code"
+          value={couponCode}
+          onChange={(e) => setCouponCode(e.target.value)}
+          className="border p-2 rounded text-sm w-full"
+        />
 
-                  <button
-                    onClick={applyCoupon}
-                    className="bg-gray-800 text-white px-4 text-sm rounded"
-                  >
-                    Apply
-                  </button>
-                </div>
+        <button
+          onClick={applyCoupon}
+          className="bg-gray-800 text-white px-4 text-sm rounded"
+        >
+          Apply
+        </button>
+      </div>
 
-                {couponError && (
-                  <p className="text-red-500 text-xs mt-1">{couponError}</p>
-                )}
+      {couponError && (
+        <p className="text-red-500 text-xs mt-1">{couponError}</p>
+      )}
+    </>
+  ) : (
+    <div className="flex items-center justify-between bg-green-50 border border-green-200 p-2 rounded">
+      <p className="text-green-600 text-xs">
+        Coupon applied! Discount ₹{discount}
+      </p>
 
-                {couponApplied && (
-                  <p className="text-green-600 text-xs mt-1">
-                    Coupon applied! Discount ₹{discount}
-                  </p>
-                )}
-              </div>
+      <button
+        onClick={removeCoupon}
+        className="text-red-500 text-xs font-semibold"
+      >
+        Remove
+      </button>
+    </div>
+  )}
+</div>
 
               <div className="flex justify-between">
                 <span>Subtotal</span>
