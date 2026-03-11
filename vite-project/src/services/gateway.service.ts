@@ -58,3 +58,35 @@ export const checkPaymentStatus = async (
     throw error;
   }
 };
+
+
+
+interface SubmitDayOutResponse {
+  bookingid: string;
+  status: string;
+}
+
+export const submitDayOutData = async (
+  bookingPayload: any,
+  paymentResponse: any
+): Promise<SubmitDayOutResponse> => {
+  try {
+    const requestBody = {
+      ...bookingPayload,
+      paymentResponse: paymentResponse,
+    };
+
+    const response = await api.post<SubmitDayOutResponse>(
+      "/api/bookingengine/submitdayoutdata",
+      requestBody
+    );
+
+    return response.data;
+  } catch (error: any) {
+    console.error(
+      "❌ Submit booking failed:",
+      error.response?.data || error.message
+    );
+    throw error;
+  }
+};

@@ -110,7 +110,7 @@ function PaymentPage() {
             email: form.email,
             phone: form.phone,
           },
-          bookingSummary: {
+          bookingSummary: [{
             packageId: bookingData.packageId,
             packageTitle: bookingData?.packageTitle,
             adults: bookingData?.adults,
@@ -122,7 +122,7 @@ function PaymentPage() {
             grandTotal: grandTotal,
             discount:discount,
             couponCode:couponCode
-          },
+          }],
         }),
       );
 
@@ -231,7 +231,7 @@ function PaymentPage() {
               </div>
               {/* Coupon */}
          {/* Coupon */}
-<div className="mt-3">
+{/* <div className="mt-3">
   {!couponApplied ? (
     <>
       <div className="flex gap-2">
@@ -268,7 +268,7 @@ function PaymentPage() {
       </button>
     </div>
   )}
-</div>
+</div> */}
 
               <div className="flex justify-between">
                 <span>Subtotal</span>

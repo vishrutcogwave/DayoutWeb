@@ -1,7 +1,10 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { CheckCircle } from "lucide-react";
-import { checkPaymentStatus } from "../services/gateway.service";
+import {
+  checkPaymentStatus,
+  submitDayOutData,
+} from "../services/gateway.service";
 
 interface BookingConfirmationResponse {
   bookingId: string;
@@ -17,7 +20,6 @@ function SuccessPage() {
   const [loading, setLoading] = useState(true);
   const [confirmation, setConfirmation] =
     useState<BookingConfirmationResponse | null>(null);
-
   const [error, setError] = useState("");
 
   const navigate = useNavigate();
@@ -25,9 +27,14 @@ function SuccessPage() {
   useEffect(() => {
     const verifyPayment = async () => {
       try {
+        /* ---------------- GET ORDER ID ---------------- */
+
         const merchantOrderId =
           new URLSearchParams(window.location.search).get("merchantOrderId") ||
-          sessionStorage.getItem("merchantOrderId");
+          sessionStorage.getItem("merchantOrderId") ||
+          localStorage.getItem("merchantOrderId");
+
+        console.log("merchantOrderId", merchantOrderId);
 
         if (!merchantOrderId) {
           setError("Payment reference not found.");
@@ -35,20 +42,24 @@ function SuccessPage() {
           return;
         }
 
-        /* 🔹 Check payment status */
+        /* ---------------- CHECK PAYMENT STATUS ---------------- */
 
         const paymentResponse = await checkPaymentStatus(merchantOrderId);
+        console.log("paymentResponse", paymentResponse);
 
         if (paymentResponse.state !== "COMPLETED") {
-          setError("Payment failed or was cancelled.");
+          setError("Payment failed or cancelled.");
           setLoading(false);
           return;
         }
 
-        /* 🔹 Get booking payload */
+        /* ---------------- GET BOOKING PAYLOAD ---------------- */
 
-        const payloadStr = sessionStorage.getItem("bookingPayload");
-console.log("payloadStr",payloadStr);
+        let payloadStr =
+          sessionStorage.getItem("bookingPayload") ||
+          localStorage.getItem("bookingPayload");
+
+        console.log("bookingPayload raw", payloadStr);
 
         if (!payloadStr) {
           setError("Booking data not found.");
@@ -58,24 +69,41 @@ console.log("payloadStr",payloadStr);
 
         const payload = JSON.parse(payloadStr);
 
+        /* ---------------- SUBMIT BOOKING ---------------- */
+
+        const bookingResponse = await submitDayOutData(
+          payload,
+          paymentResponse
+        );
+
+        console.log("bookingResponse", bookingResponse);
+
+        const booking = payload.bookingSummary[0];
+
+        /* ---------------- SET CONFIRMATION ---------------- */
+
         setConfirmation({
-          bookingId: merchantOrderId,
-          packageTitle: payload.bookingSummary.packageTitle,
-          adults: payload.bookingSummary.adults,
-          children: payload.bookingSummary.children,
-          totalAmount: payload.bookingSummary.grandTotal,
+          bookingId: bookingResponse.bookingid,
+          packageTitle: booking.packageTitle,
+          adults: booking.adults,
+          children: booking.children,
+          totalAmount: booking.grandTotal,
           guestName: `${payload.customerDetails.firstName} ${payload.customerDetails.lastName}`,
           message:
             "Booking confirmed successfully! Enjoy your stay at Mayan Resort.",
         });
 
-        /* 🔹 Clear session after success */
+        /* ---------------- CLEAR STORAGE ---------------- */
 
         sessionStorage.removeItem("merchantOrderId");
+        sessionStorage.removeItem("bookingPayload");
+
+        localStorage.removeItem("merchantOrderId");
+        localStorage.removeItem("bookingPayload");
 
         setLoading(false);
-      } catch (error) {
-        console.error("Payment verification failed:", error);
+      } catch (err) {
+        console.error("Payment verification failed:", err);
         setError("Unable to verify payment.");
         setLoading(false);
       }
