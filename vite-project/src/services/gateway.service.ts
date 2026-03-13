@@ -90,3 +90,90 @@ export const submitDayOutData = async (
     throw error;
   }
 };
+
+
+interface PolicyResponse {
+  Header: string;
+  Particulars: string;
+}
+
+export const getPrivacyPolicy = async (): Promise<PolicyResponse> => {
+  try {
+    const response = await api.get<PolicyResponse>(
+      "/api/bookingengine/getpolicy"
+    );
+
+    return response.data;
+  } catch (error: any) {
+    console.error(
+      "❌ Fetch privacy policy failed:",
+      error.response?.data || error.message
+    );
+    throw error;
+  }
+};
+
+interface PolicyResponse {
+  Header: string;
+  Particulars: string;
+}
+
+export const getRefundPolicy = async (): Promise<PolicyResponse> => {
+  try {
+    const response = await api.get<PolicyResponse>(
+      "/api/bookingengine/getrefundpolicy"
+    );
+
+    return response.data;
+  } catch (error: any) {
+    console.error(
+      "❌ Fetch refund policy failed:",
+      error.response?.data || error.message
+    );
+    throw error;
+  }
+};
+
+interface PolicyResponse {
+  Header: string;
+  Particulars: string;
+}
+
+export const getTermsAndConditions = async (): Promise<PolicyResponse> => {
+  try {
+    const response = await api.get<PolicyResponse>(
+      "/api/bookingengine/getterms"
+    );
+
+    return response.data;
+  } catch (error: any) {
+    console.error(
+      "❌ Fetch terms failed:",
+      error.response?.data || error.message
+    );
+    throw error;
+  }
+};
+
+interface ContactResponse {
+  MobileNo: string;
+  Address: string;
+  Email: string;
+}
+
+export const getContactInfo = async (): Promise<ContactResponse> => {
+  try {
+    const response = await api.get<ContactResponse>(
+      "/api/bookingengine/getcontact"
+    );
+
+    return response.data;
+  } catch (error: any) {
+    console.error(
+      "❌ Fetch contact info failed:",
+      error.response?.data || error.message
+    );
+    throw error;
+  }
+};
+

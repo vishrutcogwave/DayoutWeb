@@ -20,10 +20,10 @@ function PaymentPage() {
   const [errors, setErrors] = useState<Partial<typeof form>>({});
   const [showTerms, setShowTerms] = useState(false);
   const [acceptedTerms, setAcceptedTerms] = useState(false);
-  const [couponCode, setCouponCode] = useState("");
-  const [discount, setDiscount] = useState(0);
-  const [couponError, setCouponError] = useState("");
-  const [couponApplied, setCouponApplied] = useState(false);
+  const [couponCode, _setCouponCode] = useState("");
+  const [discount, _setDiscount] = useState(0);
+  const [_couponError, _setCouponError] = useState("");
+  const [_couponApplied, _setCouponApplied] = useState(false);
 
   const subtotal = bookingData?.total || 0;
   const discountedSubtotal = subtotal - discount;
@@ -72,13 +72,13 @@ function PaymentPage() {
     if (!validate()) return;
     setShowTerms(true);
   };
-  const applyCoupon = async () => {
+  // const applyCoupon = async () => {
 
-    if (!validate()) return
+  //   if (!validate()) return
     
-    setDiscount(500);
-    setCouponApplied(true);
-  };
+  //   setDiscount(500);
+  //   setCouponApplied(true);
+  // };
 
   const handleFinalConfirm = async () => {
     if (!acceptedTerms) {
@@ -132,12 +132,12 @@ function PaymentPage() {
       alert("Failed to initiate payment. Please try again.");
     }
   };
-  const removeCoupon = () => {
-  setCouponCode("");
-  setDiscount(0);
-  setCouponApplied(false);
-  setCouponError("");
-};
+//   const removeCoupon = () => {
+//   setCouponCode("");
+//   setDiscount(0);
+//   setCouponApplied(false);
+//   setCouponError("");
+// };
   return (
     <div className="bg-[#f7f3ee] min-h-screen py-10 px-4">
       <div className="max-w-6xl mx-auto">
