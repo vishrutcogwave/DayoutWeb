@@ -6,7 +6,7 @@ const Footer = () => {
       <div className="max-w-7xl mx-auto px-6 py-8 flex flex-col md:flex-row justify-between items-center">
         {/* Copyright */}
         <p className="text-sm mb-4 md:mb-0">
-          © {new Date().getFullYear()} Pousada Getaways. All rights reserved.
+          © {new Date().getFullYear()} All rights reserved.
         </p>
 
         {/* Footer Links */}
