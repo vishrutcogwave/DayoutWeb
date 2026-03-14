@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { dummyPackages } from "../dummyPackages";
 import PackageCard from "../components/PackageCard";
 import type { CountState } from "../types";
-
+const APP_VERSION = "v1.0.0"; 
 /* Paid Adventure Activities Data */
 const paidActivities = [
   { name: "Target Shooting", note: "(5 PELLETS)", price: 100 },
@@ -164,6 +164,9 @@ const [arrivingDate, setArrivingDate] = useState(
             </p>
           </div>
         </motion.div>
+        <div className="text-center mt-10 text-xs text-gray-400">
+  Version {APP_VERSION}
+</div>
       </div>
     </div>
   );
