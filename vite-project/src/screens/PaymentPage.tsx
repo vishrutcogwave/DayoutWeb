@@ -88,7 +88,7 @@ function PaymentPage() {
 
     try {
       const amount = +grandTotal.toFixed(0);
-      const successUrl = `${window.location.origin}/success`;
+      const successUrl = `${window.location.origin}/#/success`;
 
       const paymentResponse = await createPhonePePayment(amount, successUrl);
 

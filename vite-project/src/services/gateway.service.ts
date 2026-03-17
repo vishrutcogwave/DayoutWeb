@@ -73,7 +73,7 @@ export const submitDayOutData = async (
   try {
     const requestBody = {
       ...bookingPayload,
-      paymentResponse: paymentResponse,
+      paymentdetail: paymentResponse,
     };
 
     const response = await api.post<SubmitDayOutResponse>(

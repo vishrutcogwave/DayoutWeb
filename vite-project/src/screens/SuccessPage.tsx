@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { CheckCircle } from "lucide-react";
 import {
@@ -24,11 +24,16 @@ function SuccessPage() {
 
   const navigate = useNavigate();
 
+  // ✅ Prevent double execution
+  const hasRun = useRef(false);
+
   useEffect(() => {
+    if (hasRun.current) return;
+    hasRun.current = true;
+
     const verifyPayment = async () => {
       try {
         /* ---------------- GET ORDER ID ---------------- */
-
         const merchantOrderId =
           new URLSearchParams(window.location.search).get("merchantOrderId") ||
           sessionStorage.getItem("merchantOrderId") ||
@@ -43,7 +48,6 @@ function SuccessPage() {
         }
 
         /* ---------------- CHECK PAYMENT STATUS ---------------- */
-
         const paymentResponse = await checkPaymentStatus(merchantOrderId);
         console.log("paymentResponse", paymentResponse);
 
@@ -54,8 +58,7 @@ function SuccessPage() {
         }
 
         /* ---------------- GET BOOKING PAYLOAD ---------------- */
-
-        let payloadStr =
+        const payloadStr =
           sessionStorage.getItem("bookingPayload") ||
           localStorage.getItem("bookingPayload");
 
@@ -70,7 +73,6 @@ function SuccessPage() {
         const payload = JSON.parse(payloadStr);
 
         /* ---------------- SUBMIT BOOKING ---------------- */
-
         const bookingResponse = await submitDayOutData(
           payload,
           paymentResponse
@@ -81,7 +83,6 @@ function SuccessPage() {
         const booking = payload.bookingSummary[0];
 
         /* ---------------- SET CONFIRMATION ---------------- */
-
         setConfirmation({
           bookingId: bookingResponse.bookingid,
           packageTitle: booking.packageTitle,
@@ -93,8 +94,7 @@ function SuccessPage() {
             "Booking confirmed successfully! Enjoy your stay at Mayan Resort.",
         });
 
-        /* ---------------- CLEAR STORAGE ---------------- */
-
+        /* ---------------- CLEAR STORAGE (SAFE NOW) ---------------- */
         sessionStorage.removeItem("merchantOrderId");
         sessionStorage.removeItem("bookingPayload");
 
@@ -113,7 +113,6 @@ function SuccessPage() {
   }, []);
 
   /* ---------------- LOADING ---------------- */
-
   if (loading) {
     return (
       <div className="flex items-center justify-center h-screen bg-gray-50 px-4">
@@ -127,7 +126,6 @@ function SuccessPage() {
   }
 
   /* ---------------- ERROR ---------------- */
-
   if (error) {
     return (
       <div className="flex justify-center px-4">
@@ -152,7 +150,6 @@ function SuccessPage() {
   if (!confirmation) return null;
 
   /* ---------------- SUCCESS UI ---------------- */
-
   return (
     <div className="flex justify-center px-4">
       <div className="max-w-4xl w-full mt-20 p-8 bg-white rounded-lg shadow-xl border border-gray-200">
