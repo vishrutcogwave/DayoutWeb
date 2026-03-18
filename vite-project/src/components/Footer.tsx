@@ -11,6 +11,11 @@ const Footer = () => {
 
         {/* Footer Links */}
         <div className="flex gap-6">
+               
+          <Link to="/" className="text-sm hover:underline">
+            Home
+          </Link>
+          
           <Link to="/contact" className="text-sm hover:underline">
             Contact Us
           </Link>
