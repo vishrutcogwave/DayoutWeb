@@ -1,30 +1,24 @@
 import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { CheckCircle } from "lucide-react";
+
 import {
   checkPaymentStatus,
+  sendBookingConfirmation,
   submitDayOutData,
+  getContactInfo,
 } from "../services/gateway.service";
+import { downloadBookingPDF, generateBookingPDFBase64 } from "../components/pdfGenerator";
 
-interface BookingConfirmationResponse {
-  bookingId: string;
-  packageTitle: string;
-  adults: number;
-  children: number;
-  totalAmount: number;
-  guestName: string;
-  message: string;
-}
+
 
 function SuccessPage() {
   const [loading, setLoading] = useState(true);
-  const [confirmation, setConfirmation] =
-    useState<BookingConfirmationResponse | null>(null);
+  const [data, setData] = useState<any>(null);
+  const [contact, setContact] = useState<any>(null);
   const [error, setError] = useState("");
 
   const navigate = useNavigate();
-
-  // ✅ Prevent double execution
   const hasRun = useRef(false);
 
   useEffect(() => {
@@ -33,78 +27,87 @@ function SuccessPage() {
 
     const verifyPayment = async () => {
       try {
-        /* ---------------- GET ORDER ID ---------------- */
         const merchantOrderId =
           new URLSearchParams(window.location.search).get("merchantOrderId") ||
           sessionStorage.getItem("merchantOrderId") ||
           localStorage.getItem("merchantOrderId");
 
-        console.log("merchantOrderId", merchantOrderId);
+        if (!merchantOrderId) throw new Error("Payment reference missing");
 
-        if (!merchantOrderId) {
-          setError("Payment reference not found.");
-          setLoading(false);
-          return;
-        }
-
-        /* ---------------- CHECK PAYMENT STATUS ---------------- */
+        /* ---------------- PAYMENT ---------------- */
         const paymentResponse = await checkPaymentStatus(merchantOrderId);
-        console.log("paymentResponse", paymentResponse);
 
         if (paymentResponse.state !== "COMPLETED") {
-          setError("Payment failed or cancelled.");
-          setLoading(false);
-          return;
+          throw new Error("Payment failed or cancelled");
         }
 
-        /* ---------------- GET BOOKING PAYLOAD ---------------- */
+        /* ---------------- PAYLOAD ---------------- */
         const payloadStr =
           sessionStorage.getItem("bookingPayload") ||
           localStorage.getItem("bookingPayload");
 
-        console.log("bookingPayload raw", payloadStr);
-
-        if (!payloadStr) {
-          setError("Booking data not found.");
-          setLoading(false);
-          return;
-        }
+        if (!payloadStr) throw new Error("Booking data not found");
 
         const payload = JSON.parse(payloadStr);
 
-        /* ---------------- SUBMIT BOOKING ---------------- */
+        /* ---------------- BOOKING ---------------- */
         const bookingResponse = await submitDayOutData(
           payload,
           paymentResponse
         );
 
-        console.log("bookingResponse", bookingResponse);
-
-        const booking = payload.bookingSummary[0];
-
-        /* ---------------- SET CONFIRMATION ---------------- */
-        setConfirmation({
+        const finalData = {
+          ...payload,
           bookingId: bookingResponse.bookingid,
-          packageTitle: booking.packageTitle,
-          adults: booking.adults,
-          children: booking.children,
-          totalAmount: booking.grandTotal,
-          guestName: `${payload.customerDetails.firstName} ${payload.customerDetails.lastName}`,
-          message:
-            "Booking confirmed successfully! Enjoy your stay at Mayan Resort.",
-        });
+          transactionId: merchantOrderId,
+        };
 
-        /* ---------------- CLEAR STORAGE (SAFE NOW) ---------------- */
-        sessionStorage.removeItem("merchantOrderId");
-        sessionStorage.removeItem("bookingPayload");
+        /* ---------------- CONTACT API ---------------- */
+        let contactData = null;
 
+        try {
+          contactData = await getContactInfo();
+        } catch {
+          console.warn("Using fallback contact info");
+        }
+
+        setContact(contactData);
+
+        /* ---------------- PDF + SEND ---------------- */
+        try {
+          const pdfBase64 = generateBookingPDFBase64(
+            finalData,
+            contactData
+          );
+
+          let phone = finalData.customerDetails.phone || "";
+          phone = phone.replace(/^\+/, "").replace(/^91/, "");
+
+          await sendBookingConfirmation({
+            base64_file: pdfBase64,
+            GuestName:
+              finalData.customerDetails.firstName +
+              " " +
+              finalData.customerDetails.lastName,
+            MobileNo: phone,
+            EmailId: finalData.customerDetails.email,
+            BookingNo: finalData.bookingId,
+            HotelName: "Mayan Resort",
+          });
+        } catch (err) {
+          console.warn("PDF send failed", err);
+        }
+
+        setData(finalData);
+
+        sessionStorage.clear();
         localStorage.removeItem("merchantOrderId");
         localStorage.removeItem("bookingPayload");
 
         setLoading(false);
-      } catch (err) {
-        console.error("Payment verification failed:", err);
-        setError("Unable to verify payment.");
+      } catch (err: any) {
+        console.error(err);
+        setError(err.message || "Something went wrong");
         setLoading(false);
       }
     };
@@ -112,82 +115,132 @@ function SuccessPage() {
     verifyPayment();
   }, []);
 
-  /* ---------------- LOADING ---------------- */
+  /* ---------- LOADING ---------- */
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-screen bg-gray-50 px-4">
-        <div className="text-center p-8 bg-white rounded-lg shadow-lg w-full max-w-md animate-pulse">
-          <p className="text-gray-500 text-lg font-medium">
-            Confirming your booking...
-          </p>
-        </div>
+      <div className="flex items-center justify-center h-screen">
+        <p>Confirming your booking...</p>
       </div>
     );
   }
 
-  /* ---------------- ERROR ---------------- */
+  /* ---------- ERROR ---------- */
   if (error) {
     return (
-      <div className="flex justify-center px-4">
-        <div className="max-w-lg w-full mt-20 p-8 bg-white rounded-lg shadow-xl border border-red-200 text-center">
-          <h2 className="text-2xl font-semibold text-red-600 mb-4">
-            Payment Failed
-          </h2>
-
-          <p className="text-gray-600 mb-6">{error}</p>
-
-          <button
-            onClick={() => navigate("/")}
-            className="bg-gray-800 text-white px-6 py-3 rounded"
-          >
-            Go Back
-          </button>
-        </div>
+      <div className="text-center mt-20">
+        <h2 className="text-red-600 text-xl">Payment Failed</h2>
+        <p>{error}</p>
+        <button
+          onClick={() => navigate("/")}
+          className="mt-4 bg-black text-white px-4 py-2 rounded"
+        >
+          Go Home
+        </button>
       </div>
     );
   }
 
-  if (!confirmation) return null;
+  if (!data) return null;
 
-  /* ---------------- SUCCESS UI ---------------- */
+  const c = data.customerDetails;
+
+  const contactInfo = {
+    address:
+      contact?.Address ||
+      "Javanammana Doddi, Virupasandra, Karnataka 562117",
+    phone: contact?.MobileNo || "+91 7899192277",
+    email:
+      contact?.Email?.trim() ||
+      "infomayansresort@gmail.com",
+  };
+
+
+
+  /* ---------- UI ---------- */
   return (
-    <div className="flex justify-center px-4">
-      <div className="max-w-4xl w-full mt-20 p-8 bg-white rounded-lg shadow-xl border border-gray-200">
-        <div className="flex justify-center mb-6">
-          <CheckCircle className="w-16 h-16 text-green-500 animate-bounce" />
+    <div className="min-h-screen bg-gray-100 py-10 px-4 flex justify-center">
+      <div className="max-w-3xl w-full">
+
+        {/* HEADER */}
+        <div className="bg-green-500 text-white p-6 rounded-t-xl text-center">
+          <CheckCircle size={50} className="mx-auto mb-2" />
+          <h1 className="text-2xl font-bold">Booking Confirmed</h1>
+          <p className="text-sm">Booking ID: {data.bookingId}</p>
         </div>
 
-        <h2 className="text-3xl font-serif font-bold mb-8 text-center text-gray-900 px-6 py-2 bg-green-100 rounded-lg">
-          Booking Confirmed
-        </h2>
+        {/* BODY */}
+        <div className="bg-white p-6 rounded-b-xl shadow">
 
-        <section className="mb-8 space-y-3 text-gray-800">
-          <p className="text-lg font-semibold">
-            Booking ID:{" "}
-            <span className="text-green-600">{confirmation.bookingId}</span>
-          </p>
+          {/* CUSTOMER */}
+          <div className="mb-6 border-b pb-4">
+            <h2 className="font-semibold text-lg mb-2">
+              Customer Details
+            </h2>
+            <p>{c.firstName} {c.lastName}</p>
+            <p className="text-gray-600">{c.email}</p>
+            <p className="text-gray-600">{c.phone}</p>
+          </div>
 
-          <p className="text-lg">Guest Name: {confirmation.guestName}</p>
-          <p className="text-lg">Package: {confirmation.packageTitle}</p>
-          <p className="text-lg">Adults: {confirmation.adults}</p>
-          <p className="text-lg">Children: {confirmation.children}</p>
+          {/* BOOKINGS */}
+          {data.bookingSummary.map((b: any, i: number) => (
+            <div key={i} className="mb-5 border rounded-lg">
+              <div className="bg-gray-100 px-4 py-2 font-semibold">
+                {b.packageTitle}
+              </div>
 
-          <p className="text-2xl font-bold text-green-700 mt-6">
-            Total Paid: ₹{confirmation.totalAmount.toFixed(0)}
-          </p>
-        </section>
+              <div className="p-4 text-sm space-y-2">
+                <p>📅 {b.bookingDate}</p>
+                <p>🚪 {b.arrivingDate}</p>
+                <p>👥 {b.adults} Adults, {b.children} Children</p>
 
-        <section className="mt-12 text-center text-gray-600 font-serif text-lg italic mb-6">
-          {confirmation.message}
-        </section>
+                <div className="border-t pt-3">
+                  <div className="flex justify-between">
+                    <span>Subtotal</span>
+                    <span>₹{b.subtotal}</span>
+                  </div>
 
-        <div className="flex justify-center">
-          <button
-            onClick={() => navigate("/")}
-            className="bg-green-500 hover:bg-green-600 text-white font-semibold px-8 py-3 rounded-lg shadow-lg transition-all duration-300 transform hover:scale-105"
-          >
-            OK
-          </button>
+                  <div className="flex justify-between">
+                    <span>Tax</span>
+                    <span>₹{b.tax}</span>
+                  </div>
+
+                  <div className="flex justify-between font-bold text-lg">
+                    <span>Total</span>
+                    <span className="text-green-600">
+                      ₹{b.grandTotal}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+
+          {/* CONTACT INFO */}
+          <div className="mt-6 border-t pt-4 text-center text-sm text-gray-600">
+            <p className="font-semibold mb-1">
+              Thank you for choosing Mayan Resort
+            </p>
+            <p>📞 {contactInfo.phone}</p>
+            <p>✉️ {contactInfo.email}</p>
+            <p>{contactInfo.address}</p>
+          </div>
+
+          {/* ACTIONS */}
+          <div className="flex gap-3 mt-6">
+            <button
+              onClick={() => downloadBookingPDF(data, contact)}
+              className="flex-1 bg-black text-white py-3 rounded"
+            >
+              Download PDF
+            </button>
+
+            <button
+              onClick={() => navigate("/")}
+              className="flex-1 border py-3 rounded"
+            >
+              Go Home
+            </button>
+          </div>
         </div>
       </div>
     </div>

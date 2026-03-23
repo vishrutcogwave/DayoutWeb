@@ -256,6 +256,7 @@ return (
                     navigate("/payment", {
                       state: {
                         packageId: pkg.id,
+                        timeRange:pkg.timeRange,
                         packageTitle: pkg.title,
                         adults: current.adults,
                         children: current.children,

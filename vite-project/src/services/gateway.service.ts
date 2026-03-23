@@ -177,3 +177,28 @@ export const getContactInfo = async (): Promise<ContactResponse> => {
   }
 };
 
+export const sendBookingConfirmation = async (confirmationData: any) => {
+  try {
+    const payload = {
+      base64_file: confirmationData.base64_file,
+      GuestName: confirmationData.GuestName,
+      MobileNo: confirmationData.MobileNo,
+      EmailId: confirmationData.EmailId,
+      BookingNo: confirmationData.BookingNo,
+      HotelName: confirmationData.HotelName,
+    };
+
+    const response = await api.post(
+      "/api/bookingengine/sendwhatsupmessage",
+      payload
+    );
+
+    return response.data;
+  } catch (error: any) {
+    console.error(
+      "❌ Confirmation failed:",
+      error.response?.data || error.message
+    );
+    throw error;
+  }
+};

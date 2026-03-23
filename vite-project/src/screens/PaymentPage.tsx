@@ -9,6 +9,7 @@ function PaymentPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const bookingData = location.state || {};
+console.log("bookingData",bookingData);
 
   const [form, setForm] = useState({
     firstName: "",
@@ -112,7 +113,7 @@ function PaymentPage() {
           },
           bookingSummary: [{
             packageId: bookingData.packageId,
-            packageTitle: bookingData?.packageTitle,
+            packageTitle: `${bookingData?.packageTitle}(${bookingData.timeRange})`,
             adults: bookingData?.adults,
             bookingDate: formatDate(new Date()),
            arrivingDate: formatFromInputDate(bookingData?.arrivingDate),
