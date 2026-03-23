@@ -12,7 +12,7 @@ export const dummyPackages: PackageData[] = [
     startTime: "03:00 PM START",
     title: "Day out Package 01",
     timeRange: "03:00 PM TO 09:00 PM",
-    price: 999,
+    price: 1200,
     taxNote: "+5% TAX / PAX",
     featuresLeft: [
       "Welcome Drink",
@@ -34,7 +34,7 @@ export const dummyPackages: PackageData[] = [
     startTime: "09:00 AM START",
     title: "Day out Package 02",
     timeRange: "09:00 AM TO 06:00 PM",
-    price: 1099,
+    price: 1750,
     taxNote: "+5% TAX / PAX",
     featuresLeft: ["Welcome Drink", "Breakfast", "Lunch"],
     featuresRight: [
@@ -52,7 +52,7 @@ export const dummyPackages: PackageData[] = [
     startTime: "11:00 AM START",
     title: "Day out Package 03",
     timeRange: "11:00 AM TO 06:00 PM",
-    price: 999,
+    price: 1500,
     taxNote: "+5% TAX / PAX",
     featuresLeft: ["Welcome Drink", "Lunch"],
     featuresRight: [
@@ -70,7 +70,7 @@ export const dummyPackages: PackageData[] = [
     startTime: "01:00 PM START",
     title: "Day out Package 04",
     timeRange: "01:00 PM TO 09:00 PM",
-    price: 1199,
+    price: 1850,
     taxNote: "+5% TAX / PAX",
     featuresLeft: ["Welcome Drink", "Lunch", "Dinner"],
     featuresRight: [
@@ -89,7 +89,7 @@ export const dummyPackages: PackageData[] = [
     startTime: "09:00 AM START",
     title: "Day out Package 05",
     timeRange: "09:00 AM TO 10:00 PM",
-    price: 1399,
+    price: 2400,
     taxNote: "+5% TAX / PAX",
     featuresLeft: [
       "Welcome Drink",
