@@ -67,7 +67,7 @@ export const dummyPackages: PackageData[] = [
   {
     id: 4,
     image:img4,
-    startTime: "01:00 PM START",
+    startTime: "11:00 AM START",
     title: "Day out Package 04",
     timeRange: "11:00 AM TO 10:00 PM",
     price: 1850,
