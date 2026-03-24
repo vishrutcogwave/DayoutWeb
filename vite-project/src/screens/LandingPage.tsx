@@ -14,8 +14,7 @@ import logo from "../assets/logo_1.png";
 const paidActivities = [
   { name: "Target Shooting", note: "(5 PELLETS)", price: 100 },
   { name: "Rocket Ejector", note: "", price: 200 },
-  { name: "ATV Bike Ride", note: "(1 LAP)", price: 200 },
-  { name: "Paint ball shooting", note: "(5 PELLETS)", price: 100 },
+  { name: "ATV Bike Ride", note: "(2 LAP)", price: 300 },
   { name: "Water Roller", note: "", price: 100 },
   { name: "Meltdown", note: "", price: 100 },
   { name: "Land zorbing", note: "", price: 100 },

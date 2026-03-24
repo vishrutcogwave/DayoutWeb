@@ -69,7 +69,7 @@ export const dummyPackages: PackageData[] = [
     image:img4,
     startTime: "01:00 PM START",
     title: "Day out Package 04",
-    timeRange: "01:00 PM TO 09:00 PM",
+    timeRange: "11:00 AM TO 10:00 PM",
     price: 1850,
     taxNote: "+5% TAX / PAX",
     featuresLeft: ["Welcome Drink", "Lunch", "Dinner"],
