@@ -189,7 +189,7 @@ export const sendBookingConfirmation = async (confirmationData: any) => {
     };
 
     const response = await api.post(
-      "/api/bookingengine/sendwhatsupmessage",
+      "/api/bookingengine/sendwhatsupmessagedayout",
       payload
     );
 
