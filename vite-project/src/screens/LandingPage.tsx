@@ -5,11 +5,11 @@ import { useNavigate } from "react-router-dom";
 import { dummyPackages } from "../dummyPackages";
 import PackageCard from "../components/PackageCard";
 import type { CountState } from "../types";
-import img1 from "../assets/img1.jpeg";
-import img2 from "../assets/img2.jpeg";
-import img3 from "../assets/img3.jpeg";
-import img4 from "../assets/img4.jpeg";
-import logo from "../assets/logo_1.png";
+import img1 from "../assets/img1.png";
+import img2 from "../assets/img2.png";
+import img3 from "../assets/img3.png";
+import img4 from "../assets/img4.png";
+import logo from "../assets/MAYANS_ (1).png";
 
 const paidActivities = [
   { name: "Target Shooting", note: "(5 PELLETS)", price: 100 },
@@ -52,13 +52,13 @@ return (
       transition={{ duration: 1.2 }}
       className="relative w-full h-[320px] sm:h-[400px] lg:h-[500px] overflow-hidden"
     >
-        <img
-    src={logo}  // Replace with your logo path
-    alt="Logo"
-    className="absolute top-4 left-4 w-24 h-auto z-20 object-contain"
-  />
+<img
+  src={logo}
+  alt="Logo"
+  className="absolute top-4 left-4 z-20 w-24 h-auto object-contain bg-white rounded-lg p-2 shadow-md"
+/>
       <img
-        src={img4}
+        src={img3}
         alt="Resort"
         className="absolute inset-0 w-full h-full object-cover"
       />

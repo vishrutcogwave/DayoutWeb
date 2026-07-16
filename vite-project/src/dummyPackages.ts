@@ -1,9 +1,9 @@
 import type { PackageData } from "./types";
-import img1 from "./assets/img1.jpeg";
-import img2 from "./assets/img2.jpeg";
-import img3 from "./assets/img3.jpeg";
-import img4 from "./assets/img4.jpeg";
-import img5 from "./assets/img5.jpg";
+import img1 from "./assets/img1.png";
+import img2 from "./assets/img2.png";
+import img3 from "./assets/img3.png";
+import img4 from "./assets/img4.png";
+import img5 from "./assets/img5.png";
 
 export const dummyPackages: PackageData[] = [
   {
@@ -24,7 +24,7 @@ export const dummyPackages: PackageData[] = [
       "Hi tea",
       "Common Campfire",
       "Indoor & Outdoor Games",
-      "10 Adventure activities",
+      "10 Adventure activities coupon",
     ],
   },
 
@@ -42,7 +42,7 @@ export const dummyPackages: PackageData[] = [
       "Swimming Pool",
       "Rain dance",
       "Indoor & Outdoor Games",
-      "10 Adventure activities",
+      "10 Adventure activities coupon",
     ],
   },
 
@@ -60,7 +60,7 @@ export const dummyPackages: PackageData[] = [
       "Swimming Pool",
       "Rain dance",
       "Indoor & Outdoor Games",
-      "10 Adventure activities",
+      "10 Adventure activities coupon",
     ],
   },
 
@@ -79,7 +79,7 @@ export const dummyPackages: PackageData[] = [
       "Swimming Pool",
       "Rain dance",
       "Indoor & Outdoor Games",
-      "10 Adventure activities",
+      "10 Adventure activities coupon",
     ],
   },
 
@@ -103,7 +103,7 @@ export const dummyPackages: PackageData[] = [
       "Swimming Pool",
       "Rain dance",
       "Indoor & Outdoor Games",
-      "10 Adventure activities",
+      "10 Adventure activities coupon",
     ],
   },
 ];
