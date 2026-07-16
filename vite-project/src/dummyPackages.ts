@@ -24,7 +24,7 @@ export const dummyPackages: PackageData[] = [
       "Hi tea",
       "Common Campfire",
       "Indoor & Outdoor Games",
-      "10 Adventure activities coupon",
+      "12 Adventure activities coupons",
     ],
   },
 
@@ -42,7 +42,7 @@ export const dummyPackages: PackageData[] = [
       "Swimming Pool",
       "Rain dance",
       "Indoor & Outdoor Games",
-      "10 Adventure activities coupon",
+      "12 Adventure activities coupons",
     ],
   },
 
@@ -60,7 +60,7 @@ export const dummyPackages: PackageData[] = [
       "Swimming Pool",
       "Rain dance",
       "Indoor & Outdoor Games",
-      "10 Adventure activities coupon",
+      "12 Adventure activities coupons",
     ],
   },
 
@@ -79,7 +79,7 @@ export const dummyPackages: PackageData[] = [
       "Swimming Pool",
       "Rain dance",
       "Indoor & Outdoor Games",
-      "10 Adventure activities coupon",
+      "12 Adventure activities coupons",
     ],
   },
 
@@ -103,7 +103,7 @@ export const dummyPackages: PackageData[] = [
       "Swimming Pool",
       "Rain dance",
       "Indoor & Outdoor Games",
-      "10 Adventure activities coupon",
+      "12 Adventure activities coupons",
     ],
   },
 ];

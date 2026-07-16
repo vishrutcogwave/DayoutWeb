@@ -11,15 +11,29 @@ import img3 from "../assets/img3.png";
 import img4 from "../assets/img4.png";
 import logo from "../assets/MAYANS_ (1).png";
 
-const paidActivities = [
-  { name: "Target Shooting", note: "(5 PELLETS)", price: 100 },
-  { name: "Rocket Ejector", note: "", price: 200 },
-  { name: "ATV Bike Ride", note: "(2 LAP)", price: 300 },
-  { name: "Water Roller", note: "", price: 100 },
-  { name: "Meltdown", note: "", price: 100 },
-  { name: "Land zorbing", note: "", price: 100 },
-];
+// const paidActivities = [
+//   { name: "Target Shooting", note: "(5 PELLETS)", price: 100 },
+//   { name: "Rocket Ejector", note: "", price: 200 },
+//   { name: "ATV Bike Ride", note: "(2 LAP)", price: 300 },
+//   { name: "Water Roller", note: "", price: 100 },
+//   { name: "Meltdown", note: "", price: 100 },
+//   { name: "Land zorbing", note: "", price: 100 },
+// ];
 
+
+const paidActivities = [
+  { name: "Zipline", note: "2 Coupons", price: 150 },
+  { name: "Zip Cycle", note: "2 Coupons", price: 150 },
+  { name: "High Rope", note: "4 Coupons", price: null },
+  { name: "Water Roller", note: "2 Coupons", price: 100 },
+  { name: "Meltdown", note: "2 Coupons", price: 100 },
+  { name: "Bull Ride", note: "2 Coupons", price: 100 },
+  { name: "Archery", note: "2 Coupons", price: 100 },
+  { name: "Fish Spa", note: "2 Coupons", price: 100 },
+  { name: "ATV Bike Ride", note: "2 LAPS", price: 300 },
+  { name: "Paint Ball Shooting", note: "5 PELLETS", price: 100 },
+  { name: "Rocket Ejector", note: "", price: 200 },
+];
 const sliderImages = [
   "/images/resort1.jpg",
   "/images/resort2.jpg",
@@ -281,7 +295,7 @@ return (
             </h3>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 mt-6">
+          {/* <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 mt-6">
             {paidActivities.map((activity, index) => (
               <div key={index} className="flex justify-between py-3 border-b">
                 <div>
@@ -295,7 +309,31 @@ return (
                 <p className="font-semibold">₹{activity.price}</p>
               </div>
             ))}
-          </div>
+          </div> */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-2 mt-6">
+  {paidActivities.map((activity, index) => (
+    <div
+      key={index}
+      className="flex justify-between items-start py-3 border-b border-gray-200"
+    >
+      <div className="pr-4">
+        <p className="font-medium text-gray-800">
+          {activity.name}
+        </p>
+
+        {activity.note && (
+          <p className="text-sm text-gray-500 mt-1">
+            {activity.note}
+          </p>
+        )}
+      </div>
+
+      <p className="font-semibold text-green-700 whitespace-nowrap">
+        {activity.price ? `₹${activity.price}` : "Coupons"}
+      </p>
+    </div>
+  ))}
+</div>
         </div>
 
         {/* <div className="text-center mt-10 text-xs text-gray-400">

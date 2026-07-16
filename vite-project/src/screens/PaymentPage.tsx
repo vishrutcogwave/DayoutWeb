@@ -28,8 +28,9 @@ console.log("bookingData",bookingData);
 
   const subtotal = bookingData?.total || 0;
   const discountedSubtotal = subtotal - discount;
+  const platformFee = discountedSubtotal * 0.02
   const tax = discountedSubtotal * 0.05;
-  const grandTotal = discountedSubtotal + tax;
+  const grandTotal = discountedSubtotal + tax + platformFee;
 
   const handleChange = (field: keyof typeof form, value: string) => {
     setForm((prev) => ({
@@ -212,95 +213,62 @@ console.log("bookingData",bookingData);
           </div>
 
           {/* Booking Summary */}
-          <div className="bg-white border rounded shadow-sm p-6 h-fit">
-            <h3 className="text-lg font-semibold mb-4">Booking Summary</h3>
+       <div className="bg-white border rounded shadow-sm p-6 h-fit">
+  <h3 className="text-lg font-semibold mb-4">Booking Summary</h3>
 
-            <div className="text-sm space-y-3 border-b pb-4">
-              <div className="flex justify-between">
-                <span>Package</span>
-                <span>{bookingData?.packageTitle}</span>
-              </div>
-
-              <div className="flex justify-between">
-                <span>Adults</span>
-                <span>{bookingData?.adults}</span>
-              </div>
-
-              <div className="flex justify-between">
-                <span>Children</span>
-                <span>{bookingData?.children}</span>
-              </div>
-              {/* Coupon */}
-         {/* Coupon */}
-{/* <div className="mt-3">
-  {!couponApplied ? (
-    <>
-      <div className="flex gap-2">
-        <input
-          placeholder="Coupon Code"
-          value={couponCode}
-          onChange={(e) => setCouponCode(e.target.value)}
-          className="border p-2 rounded text-sm w-full"
-        />
-
-        <button
-          onClick={applyCoupon}
-          className="bg-gray-800 text-white px-4 text-sm rounded"
-        >
-          Apply
-        </button>
-      </div>
-
-      {couponError && (
-        <p className="text-red-500 text-xs mt-1">{couponError}</p>
-      )}
-    </>
-  ) : (
-    <div className="flex items-center justify-between bg-green-50 border border-green-200 p-2 rounded">
-      <p className="text-green-600 text-xs">
-        Coupon applied! Discount ₹{discount}
-      </p>
-
-      <button
-        onClick={removeCoupon}
-        className="text-red-500 text-xs font-semibold"
-      >
-        Remove
-      </button>
+  <div className="text-sm space-y-3 border-b pb-4">
+    <div className="flex justify-between">
+      <span>Package</span>
+      <span>{bookingData?.packageTitle}</span>
     </div>
-  )}
-</div> */}
 
-              <div className="flex justify-between">
-                <span>Subtotal</span>
-                <span>₹{subtotal}</span>
-              </div>
+    <div className="flex justify-between">
+      <span>Adults</span>
+      <span>{bookingData?.adults}</span>
+    </div>
 
-              {discount > 0 && (
-                <div className="flex justify-between text-green-600">
-                  <span>Discount</span>
-                  <span>- ₹{discount}</span>
-                </div>
-              )}
+    <div className="flex justify-between">
+      <span>Children</span>
+      <span>{bookingData?.children}</span>
+    </div>
 
-              <div className="flex justify-between">
-                <span>Tax (5%)</span>
-                <span>₹{tax.toFixed(0)}</span>
-              </div>
-            </div>
+    <div className="flex justify-between">
+      <span>Subtotal</span>
+      <span>₹{subtotal.toFixed(0)}</span>
+    </div>
 
-            <div className="flex justify-between mt-4 font-bold text-lg">
-              <span>Grand Total</span>
-              <span>₹{grandTotal.toFixed(0)}</span>
-            </div>
+    {discount > 0 && (
+      <div className="flex justify-between text-green-600">
+        <span>Discount</span>
+        <span>- ₹{discount.toFixed(0)}</span>
+      </div>
+    )}
 
-            <button
-              onClick={handleConfirm}
-              className="w-full mt-6 bg-[#d8b074] hover:bg-[#c59a58] text-white py-3 font-semibold tracking-wide"
-            >
-              CONFIRM BOOKING
-            </button>
-          </div>
+    <div className="flex justify-between">
+      <span>Platform Fee (2%)</span>
+      <span>₹{platformFee.toFixed(0)}</span>
+    </div>
+
+    <div className="flex justify-between">
+      <span>Tax (5%)</span>
+      <span>₹{tax.toFixed(0)}</span>
+    </div>
+  </div>
+
+  <div className="flex justify-between mt-4 pt-2 border-t font-bold text-lg">
+    <span>Grand Total</span>
+    <span className="text-[#d8b074]">
+      ₹{grandTotal.toFixed(0)}
+    </span>
+  </div>
+
+  <button
+    onClick={handleConfirm}
+    className="w-full mt-6 bg-[#d8b074] hover:bg-[#c59a58] text-white py-3 font-semibold tracking-wide"
+  >
+    CONFIRM BOOKING
+  </button>
+</div>
         </div>
 
         {/* Terms Modal */}
